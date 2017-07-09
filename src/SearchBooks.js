@@ -12,7 +12,7 @@ class SearchBooks extends Component {
         if (query.length > 0) {
             BooksAPI.search(query, 10).then(
                 (books) => {
-                    this._maybeUpdateBooks(books)
+                    this._updateBooks(books)
                 },
                 (err) => {
                     console.log("error" + err)
@@ -23,7 +23,7 @@ class SearchBooks extends Component {
         }
     }
 
-    _maybeUpdateBooks = (books) => {
+    _updateBooks = (books) => {
         if (Array.isArray(books)) {
             this.setState({books})
         } else {
