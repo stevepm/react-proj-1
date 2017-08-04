@@ -1,12 +1,18 @@
 import React, {Component} from 'react'
 import {Link} from 'react-router-dom'
+import PropTypes from 'prop-types'
 import * as BooksAPI from './BooksAPI'
 import Books from './Books'
 
 class SearchBooks extends Component {
+    static propTypes = {
+        books: PropTypes.array.isRequired,
+        onUpdateShelf: PropTypes.func.isRequired
+    };
+
     state = {
-        books: []
-    }
+        queryResults: []
+    };
 
     _searchBooks = (query) => {
         if (query.length > 0) {
@@ -19,17 +25,31 @@ class SearchBooks extends Component {
                 }
             )
         } else {
-            this.setState({books: []})
+            this.setState({queryResults: []})
         }
-    }
+    };
 
     _updateBooks = (books) => {
         if (Array.isArray(books)) {
-            this.setState({books})
+            const booksObj = {};
+            this.props.books.forEach((book) => {
+                booksObj[book.id] = book.shelf
+            });
+
+            const updatedBooks = books.map((book) => {
+                const shelf = booksObj[book.id];
+                if (shelf) {
+                    book.shelf = shelf;
+                }
+
+                return book;
+            });
+
+            this.setState({queryResults: updatedBooks})
         } else {
-            this.setState({books: []})
+            this.setState({queryResults: []})
         }
-    }
+    };
 
     render() {
         return (
@@ -49,7 +69,7 @@ class SearchBooks extends Component {
                     </div>
                 </div>
                 <div className="search-books-results">
-                    <Books books={this.state.books}/>
+                    <Books books={this.state.queryResults} onUpdateShelf={this.props.onUpdateShelf}/>
                 </div>
             </div>
         )

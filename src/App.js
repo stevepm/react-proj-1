@@ -6,24 +6,68 @@ import SearchBooks from './SearchBooks'
 import './App.css'
 
 class BooksApp extends React.Component {
-  state = {
-    /**
-     * TODO: Instead of using this state variable to keep track of which page
-     * we're on, use the URL in the browser's address bar. This will ensure that
-     * users can use the browser's back and forward buttons to navigate between
-     * pages, as well as provide a good URL they can bookmark and share.
-     */
-    showSearchPage: true
-  }
+    state = {
+        books: [],
+    };
 
-  render() {
-    return (
-      <div className="app">
-        <Route exact path="/" component={ListBooks}/>
-        <Route path="/search" component={SearchBooks}/>
-      </div>
-    )
-  }
+    componentDidMount() {
+        this._getBooks();
+    }
+
+    _getBooks = () => {
+        BooksAPI.getAll().then((books) => {
+            this._setBooks(books)
+        });
+    };
+
+    _setBooks = (books) => {
+        this.setState({
+            books,
+        });
+    };
+
+    _onUpdateShelf = (updatedBook, shelf) => {
+        const {books} = this.state;
+        let updatedBooks = books;
+
+        const bookInCollection = books.some((book) => {
+            return book.id === updatedBook.id;
+        });
+
+        if (bookInCollection) {
+            updatedBooks = books.map((book) => {
+                if (book.id === updatedBook.id) {
+                    BooksAPI.update(book, shelf);
+                    book.shelf = shelf;
+                }
+                return book;
+            });
+        } else {
+            updatedBooks.push(updatedBook);
+            BooksAPI.update(updatedBook, shelf);
+        }
+
+        this.setState({books: updatedBooks});
+    };
+
+    render() {
+        return (
+            <div className="app">
+                <Route exact path="/" render={() => (
+                    <ListBooks
+                        books={this.state.books}
+                        onUpdateShelf={this._onUpdateShelf}
+                    />
+                )}/>
+                <Route path="/search" render={() => (
+                    <SearchBooks
+                        books={this.state.books}
+                        onUpdateShelf={this._onUpdateShelf}
+                    />
+                )}/>
+            </div>
+        )
+    }
 }
 
 export default BooksApp

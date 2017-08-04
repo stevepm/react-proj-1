@@ -4,8 +4,9 @@ import PropTypes from 'prop-types'
 
 class Books extends Component {
     static propTypes = {
-        books: PropTypes.array.isRequired
-    }
+        books: PropTypes.array.isRequired,
+        onUpdateShelf: PropTypes.func.isRequired
+    };
 
     render() {
         return (
@@ -16,15 +17,15 @@ class Books extends Component {
     }
 
     _books = () => {
-        const {books} = this.props
+        const {onUpdateShelf, books} = this.props;
 
         if (books.length > 0) {
             return books.map((book) => {
-                return <Book key={book.id} book={book}/>
+                return <Book key={book.id} book={book} onUpdateShelf={onUpdateShelf}/>
             })
         } else {
             return (
-                <div>No books available for given query</div>
+                <div>No books for given query!</div>
             )
         }
     }
